@@ -7,11 +7,18 @@ import (
 	"strings"
 )
 
+const (
+	logLevelKey     = "LOG_LEVEL"
+	logFilePathKey  = "LOG_FILE_PATH"
+	reportCallerKey = "REPORT_CALLER"
+	filePermissions = 0666
+)
+
 var Log = logrus.New()
 
 func init() {
 	Log.SetLevel(getLogLevel())
-	f, err := os.OpenFile(getLogFilePath(), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(getLogFilePath(), os.O_RDWR|os.O_CREATE|os.O_APPEND, filePermissions)
 	if err != nil {
 		Log.Fatalf("Error opening file: %v", err)
 	}
@@ -21,7 +28,7 @@ func init() {
 }
 
 func getLogLevel() logrus.Level {
-	lvl, ok := os.LookupEnv("LOG_LEVEL")
+	lvl, ok := os.LookupEnv(logLevelKey)
 	if !ok {
 		lvl = "debug"
 	}
@@ -33,7 +40,7 @@ func getLogLevel() logrus.Level {
 }
 
 func getLogFilePath() string {
-	path, ok := os.LookupEnv("LOG_FILE_PATH")
+	path, ok := os.LookupEnv(logFilePathKey)
 	if !ok {
 		path = "app.log"
 	}
@@ -41,7 +48,7 @@ func getLogFilePath() string {
 }
 
 func getReportCaller() bool {
-	reportCaller, ok := os.LookupEnv("REPORT_CALLER")
+	reportCaller, ok := os.LookupEnv(reportCallerKey)
 	if !ok || strings.EqualFold(reportCaller, "y") {
 		return true
 	}
